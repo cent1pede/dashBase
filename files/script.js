@@ -682,12 +682,13 @@ function checkCollisions(elementChanged, menuType, oldData) {
 
 
 
-function testAllData() {
+function testAllData(element) {
 
     var currentRoles = [];
     $('.roleselector').each(function () {
         var tempSpec = {};
         tempSpec.meetings = [];
+        tempSpec.lunch = '';
         console.log($(this).attr('id'));
         tempSpec.employee = $(this).attr('id');
         tempSpec.role = $(this).find('option:selected').text();
@@ -722,14 +723,71 @@ function testAllData() {
                     start: '',
                     end: ''
                 }
-                currentRoles[i].meetings[j].start = $(this).prev().prev().text().split(' ')[0];
-                currentRoles[i].meetings[j].end = $(this).prev().text();
+
+                var tempStart = new Date(moment($(this).prev().prev().text().split(' ')[0], 'HH-mm'));
+                var tempEnd = new Date(moment($(this).prev().text(), 'HH-mm'));
+
+                currentRoles[i].meetings[j].start = tempStart.getTime();
+                currentRoles[i].meetings[j].end = tempEnd.getTime();
+                j++;
             }
 
         }
 
 
     });
+
+    var rolesArr = ['Dispatcher', 'Backup', '1500', '1500 Backup'];
+    for (i in currentRoles) {
+
+        if ((currentRoles[i].lunch != '') && $.inArray(currentRoles[i].role, rolesArr) != -1) {
+            for (j in currentRoles) {
+                if (((currentRoles[i].employee != currentRoles[j].employee) && ((currentRoles[i].lunch == currentRoles[j].lunch) && $.inArray(currentRoles[j].role, rolesArr) != -1))) {
+
+                    console.log(currentRoles[i].employee + '  -  ' + currentRoles[j].employee);
+                    console.log('ERROR!!!!!!!!!!!!!!!!!!!!!');
+
+                }
+            }
+        }
+
+        if (currentRoles[i].meetings.length != 0) {
+
+           // console.log(i + ' i fired - user -' + currentRoles[i].employee);
+
+            for (k in currentRoles[i].meetings) {
+
+           //     console.log(k + ' k fired - user -' + currentRoles[i].employee);
+                for (j in currentRoles) {
+
+            //        console.log(j + ' j fired - user -' + currentRoles[i].employee);
+             //       console.log(' j  - user -' + currentRoles[j].employee);
+                    for (l in currentRoles[j].meetings) {
+
+                //        console.log(l + ' l fired - user -' + currentRoles[i].employee);
+
+
+                        if ((currentRoles[i].employee != currentRoles[j].employee) && ((currentRoles[i].meetings[k].start < currentRoles[j].meetings[l].end && currentRoles[i].meetings[k].start >= currentRoles[j].meetings[l].start) ||
+                                (currentRoles[j].meetings[l].start < currentRoles[i].meetings[k].end && currentRoles[j].meetings[l].start >= currentRoles[i].meetings[k].start))) {
+
+
+                            console.log('meeetingerror!!!!!1' + currentRoles[i].employee);
+                        }
+
+
+                    }
+
+
+
+                }
+
+            }
+
+
+        }
+
+
+    }
 
     return currentRoles;
 }
